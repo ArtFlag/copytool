@@ -37,12 +37,22 @@ def copy_paths_to_target(paths: Tuple, target: str):
         shutil.rmtree(target)
     os.mkdir(target)
     for path in paths:
-        folder_name = path
-        if "/" in path:
-            folder_name = path.split("/")[-1]
-        os.mkdir(os.path.join(target, folder_name))
+        if path[-1] == "/":
+            path = path[:-1]
+        folder_name = get_containing_folder(path)
+        os.mkdir(
+            os.path.join(target, folder_name)
+        )  # set containing folder for current path
         sub_target = os.path.join(target, folder_name)
         copy_tree(path, sub_target)
+
+
+def get_containing_folder(path: str) -> str:
+    """Takes a path and returns a folder name that should contain
+    the provided path in the target folder. If this path is
+    unknown, return the same folder name as in the path"""
+    # Add special cases here
+    return path.split("/")[-1]
 
 
 def check_path_params(paths: Tuple) -> bool:

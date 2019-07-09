@@ -1,4 +1,4 @@
-from copytool import check_path_params, copy_paths_to_target
+from copytool import check_path_params, copy_paths_to_target, get_containing_folder
 import os
 import pytest
 import shutil
@@ -37,6 +37,11 @@ def create_dirs_target(request):
         shutil.rmtree(dir2)
 
     request.addfinalizer(del_dir)
+
+
+def test_get_containing_folder_unknown(create_dirs_target):
+    path = "existing_subfolder/subdir"
+    assert get_containing_folder(path) == "subdir"
 
 
 def test_copy_path_dir(create_dirs_target):
