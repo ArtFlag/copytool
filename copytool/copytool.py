@@ -7,9 +7,9 @@ from distutils.dir_util import copy_tree
 import click
 import os
 import shutil
+from pathlib import Path
 import http.server
 import socketserver
-
 
 def start_server(folder: str, port: int = 8080):
     """Starts a local webserver on the provided port"""
@@ -33,18 +33,19 @@ def start_server(folder: str, port: int = 8080):
 
 def copy_paths_to_target(paths: Tuple, target: str):
     """Copies the folders in 'paths' to the 'target' folder."""
-    if os.path.exists(target):
+    target = Path(target)
+    if target.exists():
         shutil.rmtree(target)
-    os.mkdir(target)
+    target.mkdir(parents=True, exist_ok=True)
+
     for path in paths:
         if path[-1] == "/":
             path = path[:-1]
-        folder_name = get_containing_folder(path)
-        os.mkdir(
-            os.path.join(target, folder_name)
-        )  # set containing folder for current path
-        sub_target = os.path.join(target, folder_name)
-        copy_tree(path, sub_target)
+        container = get_containing_folder(path)
+        new_folder = Path(target / container)  # set containing folder for current path
+        new_folder.mkdir(parents=True, exist_ok=False)
+        sub_target = target / container
+        copy_tree(path, str(sub_target))
 
 
 def get_containing_folder(path: str) -> str:
@@ -58,7 +59,7 @@ def get_containing_folder(path: str) -> str:
 def check_path_params(paths: Tuple) -> bool:
     """Checks if all paths in 'paths' exist."""
     for path in paths:
-        if not os.path.isdir(path):
+        if not Path(path).is_dir():
             print(f"Path does not exist: {path}")
             return False
     return True
